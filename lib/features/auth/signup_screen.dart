@@ -30,12 +30,12 @@ class _SignupScreenState extends State<SignupScreen>
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
   late AnimationController _slideController;
   late AnimationController _fadeController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
-  
+
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
@@ -95,6 +95,8 @@ class _SignupScreenState extends State<SignupScreen>
   }
 
   void _handleSignup() async {
+    FocusScope.of(context).unfocus();
+
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _isLoading = true);
 
@@ -287,9 +289,9 @@ class _SignupScreenState extends State<SignupScreen>
                               ),
                             ),
                           ),
-                          
+
                           SizedBox(height: 20.h),
-                          
+
                           // Logo section
                           Center(
                             child: Container(
@@ -307,7 +309,7 @@ class _SignupScreenState extends State<SignupScreen>
                               ),
                             ),
                           ),
-                          
+
                           SizedBox(height: 20.h),
                           Container(
                             alignment: Alignment.center,
@@ -320,7 +322,7 @@ class _SignupScreenState extends State<SignupScreen>
                             ),
                           ),
                           SizedBox(height: 8.h),
-                          
+
                           Container(
                             alignment: Alignment.center,
                             child: Opacity(
@@ -332,9 +334,9 @@ class _SignupScreenState extends State<SignupScreen>
                               ),
                             ),
                           ),
-                          
+
                           SizedBox(height: 40.h),
-                          
+
                           // Signup form
                           Form(
                             key: _formKey,
@@ -418,9 +420,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     );
                                   },
                                 ),
-                                
+
                                 SizedBox(height: 20.h),
-                                
+
                                 // Email field
                                 TextFormField(
                                   controller: _emailController,
@@ -437,9 +439,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 20.h),
-                                
+
                                 // Username field
                                 TextFormField(
                                   controller: _usernameController,
@@ -456,9 +458,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 20.h),
-                                
+
                                 // Password field
                                 TextFormField(
                                   controller: _passwordController,
@@ -489,9 +491,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 20.h),
-                                
+
                                 // Confirm Password field
                                 TextFormField(
                                   controller: _confirmPasswordController,
@@ -521,9 +523,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 16.h),
-                                
+
                                 // Password requirements
                                 Container(
                                   padding: EdgeInsets.all(12.w),
@@ -553,9 +555,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     ],
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 32.h),
-                                
+
                                 // Signup button
                                 SizedBox(
                                   width: double.infinity,
@@ -581,9 +583,9 @@ class _SignupScreenState extends State<SignupScreen>
                                           ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 24.h),
-                                
+
                                 // Divider
                                 Row(
                                   children: [
@@ -614,9 +616,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     ),
                                   ],
                                 ),
-                                
+
                                 SizedBox(height: 24.h),
-                                
+
                                 // Social signup button
                                 SizedBox(
                                   width: double.infinity,
@@ -635,9 +637,9 @@ class _SignupScreenState extends State<SignupScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 15.h),
-                                
+
                                 // Sign in link
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -662,7 +664,7 @@ class _SignupScreenState extends State<SignupScreen>
                                     ),
                                   ],
                                 ),
-                                
+
                                 SizedBox(height: 20.h),
                               ],
                             ),
@@ -686,7 +688,7 @@ class _SignupScreenState extends State<SignupScreen>
     final media = getIt<MediaService>();
     final authController = TextEditingController(text: api.baseUrl);
     final mediaController = TextEditingController(text: media.mediaBaseUrl);
-    
+
     await showDialog(
       context: context,
       builder: (ctx) {

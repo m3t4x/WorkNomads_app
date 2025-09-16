@@ -899,7 +899,7 @@ class _HomeScreenState extends State<HomeScreen>
                   SizedBox(height: 8.h),
                   Slider(
                     value: position.inSeconds.toDouble().clamp(0, (duration.inSeconds.toDouble() == 0 ? 1 : duration.inSeconds.toDouble())),
-                    activeColor: Colors.white,
+                    activeColor: Theme.of(context).colorScheme.primary,
                     inactiveColor: Colors.grey.withAlpha(120),
                     max: (duration.inSeconds == 0 ? 1 : duration.inSeconds).toDouble(),
                     onChanged: (v) async {

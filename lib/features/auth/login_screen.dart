@@ -26,12 +26,12 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   late AnimationController _slideController;
   late AnimationController _fadeController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
-  
+
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   bool _rememberMe = false;
@@ -87,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _handleLogin() async {
+    FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _isLoading = true);
 
@@ -212,9 +213,9 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
                           ),
-                          
+
                           SizedBox(height: 20.h),
-                          
+
                           // Logo section
                           Center(
                             child: Container(
@@ -232,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
                           ),
-                          
+
                           SizedBox(height: 20.h),
                           Container(
                             alignment: Alignment.center,
@@ -245,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                           SizedBox(height: 8.h),
-                          
+
                           Container(
                             alignment: Alignment.center,
                             child: Opacity(
@@ -257,9 +258,9 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ),
                           ),
-                          
+
                           SizedBox(height: 40.h),
-                          
+
                           // Login form
                           Form(
                             key: _formKey,
@@ -281,9 +282,9 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 20.h),
-                                
+
                                 // Password field
                                 TextFormField(
                                   controller: _passwordController,
@@ -313,9 +314,9 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 16.h),
-                                
+
                                 // Remember me and forgot password
                                 Row(
                                   children: [
@@ -348,9 +349,9 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ],
                                 ),
-                                
+
                                 SizedBox(height: 32.h),
-                                
+
                                 // Login button
                                 SizedBox(
                                   width: double.infinity,
@@ -376,9 +377,9 @@ class _LoginScreenState extends State<LoginScreen>
                                           ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 24.h),
-                                
+
                                 // Divider
                                 Row(
                                   children: [
@@ -408,9 +409,9 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ],
                                 ),
-                                
+
                                 SizedBox(height: 24.h),
-                                
+
                                 // Social login buttons
                                 SizedBox(
                                   width: double.infinity,
@@ -429,9 +430,9 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 SizedBox(height: 15.h),
-                                
+
                                 // Sign up link
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -458,7 +459,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ],
                                 ),
-                                
+
                                 SizedBox(height: 20.h),
                               ],
                             ),
@@ -482,7 +483,7 @@ class _LoginScreenState extends State<LoginScreen>
     final media = getIt<MediaService>();
     final authController = TextEditingController(text: api.baseUrl);
     final mediaController = TextEditingController(text: media.mediaBaseUrl);
-    
+
     await showDialog(
       context: context,
       builder: (ctx) {

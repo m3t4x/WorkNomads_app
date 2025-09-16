@@ -15,6 +15,10 @@ void main() async {
   
   // Set system UI overlay style
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  // Lock orientation to portrait only
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   
   runApp(const WorkNomadsApp());
 }
