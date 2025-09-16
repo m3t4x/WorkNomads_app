@@ -34,10 +34,6 @@ This is a Flutter app featuring authentication, a media gallery (images and audi
      ```bash
      flutter run -d ios
      ```
-   - Web (for quick UI checks):
-     ```bash
-     flutter run -d chrome
-     ```
 
 ## Runtime Configuration (3‑finger tap)
 
@@ -87,9 +83,6 @@ You can set/change the base URLs at runtime from within the app:
 
 - iOS App Transport Security (ATS):
   - For non-HTTPS local endpoints, add ATS exceptions in `Info.plist` (development only).
-
-- Web audio playback:
-  - The browser audio element cannot attach Authorization headers. Ensure audio URLs are public and CORS-enabled.
 
 ## Project Structure (highlights)
 
