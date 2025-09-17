@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiController {
   static const String _defaultBaseUrl = 'http://localhost:8001';
@@ -9,6 +10,7 @@ class ApiController {
   
   late Dio _dio;
   late SharedPreferences _prefs;
+  late FlutterSecureStorage _secure;
   String? _accessToken;
   String? _refreshToken;
   String _baseUrl = _defaultBaseUrl;
@@ -19,8 +21,16 @@ class ApiController {
 
   Future<void> initialize() async {
     _prefs = await SharedPreferences.getInstance();
-    _accessToken = _prefs.getString(_accessTokenKey);
-    _refreshToken = _prefs.getString(_refreshTokenKey);
+    _secure = const FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
+    );
+
+    // Load tokens from secure storage
+    _accessToken = await _secure.read(key: _accessTokenKey);
+    _refreshToken = await _secure.read(key: _refreshTokenKey);
+
+    // Base URL remains in SharedPreferences
     _baseUrl = _prefs.getString(_baseUrlKey) ?? _defaultBaseUrl;
     
     _dio = Dio(BaseOptions(
@@ -186,18 +196,18 @@ class ApiController {
     if (refreshToken != null) {
       _refreshToken = refreshToken;
     }
-    
-    await _prefs.setString(_accessTokenKey, accessToken);
+    // Persist securely
+    await _secure.write(key: _accessTokenKey, value: accessToken);
     if (refreshToken != null) {
-      await _prefs.setString(_refreshTokenKey, refreshToken);
+      await _secure.write(key: _refreshTokenKey, value: refreshToken);
     }
   }
 
   Future<void> clearTokens() async {
     _accessToken = null;
     _refreshToken = null;
-    await _prefs.remove(_accessTokenKey);
-    await _prefs.remove(_refreshTokenKey);
+    await _secure.delete(key: _accessTokenKey);
+    await _secure.delete(key: _refreshTokenKey);
   }
 
   Future<void> logout() async {
