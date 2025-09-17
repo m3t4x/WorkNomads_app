@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:record/record.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -36,6 +38,11 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isLoading = false;
   bool _isUploading = false;
   String _selectedFilter = 'all'; // all, image, audio
+  final AudioRecorder _audioRecorder = AudioRecorder();
+  bool _isRecording = false;
+  Duration _recordDuration = Duration.zero;
+  Timer? _recordTimer;
+  void Function(void Function())? _recorderModalSetState;
 
   @override
   void initState() {
@@ -64,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     _fadeController.dispose();
+    _recordTimer?.cancel();
+    _audioRecorder.dispose();
     super.dispose();
   }
 
@@ -113,6 +122,121 @@ class _HomeScreenState extends State<HomeScreen>
     if (result != null && result.files.single.path != null) {
       await _uploadFile(File(result.files.single.path!), isImage: false);
     }
+  }
+
+  Future<void> _startRecording() async {
+    final hasPermission = await _audioRecorder.hasPermission();
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Microphone permission required', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
+          backgroundColor: AppColors.lightError,
+        ),
+      );
+      return;
+    }
+
+    _recordDuration = Duration.zero;
+    _recordTimer?.cancel();
+    _recordTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _recordDuration += const Duration(seconds: 1);
+      if (mounted) setState(() {});
+      final cb = _recorderModalSetState;
+      if (cb != null) cb(() {});
+    });
+
+    final dir = await getTemporaryDirectory();
+    final filePath = '${dir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    await _audioRecorder.start(
+      RecordConfig(
+        encoder: AudioEncoder.aacLc,
+        bitRate: 128000,
+        sampleRate: 44100,
+      ),
+      path: filePath,
+    );
+    setState(() => _isRecording = true);
+  }
+
+  Future<void> _stopRecordingAndUpload() async {
+    final path = await _audioRecorder.stop();
+    _recordTimer?.cancel();
+    setState(() => _isRecording = false);
+    if (path != null) {
+      await _uploadFile(File(path), isImage: false);
+    }
+  }
+
+  void _openRecorderDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            // Cache the modal's setState so timer ticks can trigger rebuilds
+            _recorderModalSetState = setModalState;
+            String twoDigits(int n) => n.toString().padLeft(2, '0');
+            final mm = twoDigits(_recordDuration.inMinutes.remainder(60));
+            final ss = twoDigits(_recordDuration.inSeconds.remainder(60));
+            return Padding(
+              padding: EdgeInsets.all(20.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Record Audio',
+                    style: AppTextStyles.headlineSmall.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 12.h),
+                  Opacity(
+                    opacity: 0.7,
+                    child: Text(
+                      _isRecording ? 'Recording... $mm:$ss' : 'Tap to start a new recording',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56.h,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        if (_isRecording) {
+                          await _stopRecordingAndUpload();
+                          _recorderModalSetState = null;
+                          if (mounted) Navigator.pop(context);
+                        } else {
+                          await _startRecording();
+                          setModalState(() {});
+                        }
+                      },
+                      icon: Icon(_isRecording ? Icons.stop_rounded : Icons.mic_rounded),
+                      label: Text(_isRecording ? 'Stop & Upload' : 'Start Recording', style: AppTextStyles.buttonText),
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  if (_isRecording)
+                    TextButton(
+                      onPressed: () async {
+                        // Cancel recording
+                        await _audioRecorder.stop();
+                        _recordTimer?.cancel();
+                        setState(() { _isRecording = false; _recordDuration = Duration.zero; });
+                        _recorderModalSetState = null;
+                        if (mounted) Navigator.pop(context);
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<void> _uploadFile(File file, {required bool isImage}) async {
@@ -586,6 +710,14 @@ class _HomeScreenState extends State<HomeScreen>
                 onTap: () {
                   Navigator.pop(context);
                   _uploadAudio();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.mic_rounded),
+                title: const Text('Record Audio'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _openRecorderDialog();
                 },
               ),
               SizedBox(height: 20.h),

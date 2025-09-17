@@ -6,6 +6,7 @@ This is a Flutter app featuring authentication, a media gallery (images and audi
 
 - Auth: Login, Signup, and token refresh (JWT). Tokens persisted and auto-refreshed.
 - Media: List, upload and delete images/audio, play audio, full-screen image viewer with blur/zoom.
+- Record audio in-app and upload directly.
 - Theming: Light/Dark theme.
 - Config: 3‑finger tap anywhere (Login/Signup/Home) to set the Auth API URL and the Media API URL (persisted).
 
